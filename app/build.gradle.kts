@@ -46,8 +46,6 @@ dependencies {
     implementation(libs.retrofit2)
     implementation(libs.moshi)
     implementation(libs.glide)
-    ksp(libs.dagger.compiler)
-    implementation(libs.dagger)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
