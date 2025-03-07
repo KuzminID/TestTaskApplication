@@ -45,6 +45,8 @@ dependencies {
     implementation(libs.room.ktx)
     implementation(libs.retrofit2)
     implementation(libs.moshi)
+    implementation(libs.retrofit.converter.moshi)
+    implementation(libs.moshi.kotlin)
     implementation(libs.glide)
     ksp(libs.dagger.compiler)
     implementation(libs.dagger)

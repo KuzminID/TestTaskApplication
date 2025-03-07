@@ -27,5 +27,5 @@ data class NewsEntity(
     @ColumnInfo(name = "mobile_url")
     val mobileUrl : String,
     @ColumnInfo(name = "ignore_state")
-    val isIgnored : Boolean = false
+    var isIgnored : Boolean = false
 )
