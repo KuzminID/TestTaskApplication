@@ -9,7 +9,7 @@ import com.example.testtaskapplication.di.RoomModule
 
 class TestTaskApplication : Application() {
     companion object {
-        lateinit var appComponent : AppComponent
+        lateinit var appComponent: AppComponent
     }
 
     override fun onCreate() {

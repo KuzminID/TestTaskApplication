@@ -13,16 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.testtaskapplication.TestTaskApplication.Companion.appComponent
 import com.example.testtaskapplication.data.repositories.NewsRepositoryImpl
-import com.example.testtaskapplication.di.DaggerAppComponent
 import com.example.testtaskapplication.ui.theme.TestTaskApplicationTheme
-import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-
-    lateinit var repositoryImpl : NewsRepositoryImpl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,11 +32,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-        }
-
-        repositoryImpl = appComponent.getNewsRepositoryImpl()
-        CoroutineScope(Dispatchers.IO).launch{
-            Log.d("MainActivity",repositoryImpl.getAllNewsFromDb().toString())
         }
     }
 }

@@ -1,8 +1,5 @@
 package com.example.testtaskapplication.di
 
-import com.example.testtaskapplication.MainActivity
-import com.example.testtaskapplication.data.local.NewsDao
-import com.example.testtaskapplication.data.remote.ApiService
 import com.example.testtaskapplication.data.repositories.NewsRepositoryImpl
 import dagger.Component
 import jakarta.inject.Singleton
@@ -11,7 +8,7 @@ import jakarta.inject.Singleton
 @Singleton
 interface AppComponent {
 
-    fun getNewsRepositoryImpl() : NewsRepositoryImpl
+    fun getNewsRepositoryImpl(): NewsRepositoryImpl
 
 
 }

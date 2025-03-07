@@ -1,6 +1,5 @@
 package com.example.testtaskapplication.data.repositories
 
-import android.util.Log
 import com.example.testtaskapplication.data.local.NewsDao
 import com.example.testtaskapplication.data.local.NewsEntity
 import com.example.testtaskapplication.data.remote.ApiService
@@ -12,28 +11,19 @@ class NewsRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : NewsRepository {
 
-    override suspend fun getAllNewsFromDb(): List<NewsEntity> {
-        val news = getAllNewsFromApi()
-        return news
-    }
+    override suspend fun getAllNews(): List<NewsEntity> {
+        var dbNews = newsDao.getAllNews()
 
-    override suspend fun getAllNewsFromApi(): List<NewsEntity> {
         val apiNews = apiService.getNewsFromApi().data.news
-        val dbNews = newsDao.getAllNews()
-        val updatedNews = mutableListOf<NewsEntity>()
-        apiNews.forEach { item ->
-            val existingItem = dbNews.find { item.id == it.id }
-            if (existingItem == null) {
-                updatedNews.add(item)
-            } else {
-                if (existingItem.isIgnored != item.isIgnored) {
-                    item.isIgnored = true
-                    updatedNews.add(item)
-                }
-            }
+
+        val ignoredNews = dbNews.filter { it.isIgnored == true }
+        ignoredNews.forEach { item ->
+            apiNews.find { item.id == it.id }?.isIgnored = true
+
         }
-        newsDao.insertNews(updatedNews)
-        return updatedNews
+        newsDao.insertNews(apiNews)
+
+        return apiNews
     }
 
     override suspend fun ignoreNews(newsItem: NewsEntity) {
