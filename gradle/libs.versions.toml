@@ -13,6 +13,7 @@ moshiVersion  = "1.15.2"
 roomVersion = "2.6.1"
 glideVersion = "4.16.0"
 kspVersion = "2.1.10-1.0.29"
+daggerVersion = "2.55"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,6 +36,9 @@ moshi = {group = "com.squareup.moshi",name = "moshi", version.ref = "moshiVersio
 room_compiler = {group = "androidx.room",name = "room-compiler",version.ref = "roomVersion"}
 room_ktx = {group = "androidx.room",name = "room-ktx",version.ref = "roomVersion"}
 glide = {group = "com.github.bumptech.glide",name = "glide",version.ref = "glideVersion"}
+dagger_compiler = {group = "com.google.dagger",name = "dagger-compiler",version.ref = "daggerVersion"}
+dagger = {group = "com.google.dagger",name = "dagger",version.ref = "daggerVersion"}
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
