@@ -2,11 +2,13 @@ package com.example.testtaskapplication.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import androidx.room.Update
 
 @Dao
 interface NewsDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertNews(newsList : List<NewsEntity>)
 
     @Update
@@ -14,4 +16,7 @@ interface NewsDao {
 
     @Update
     fun updateAllNews(newsList : List<NewsEntity>)
+
+    @Query("SELECT * FROM news_table")
+    fun getAllNews() : List<NewsEntity>
 }

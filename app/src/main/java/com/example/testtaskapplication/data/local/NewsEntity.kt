@@ -3,6 +3,8 @@ package com.example.testtaskapplication.data.local
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import java.sql.Date
 import java.time.LocalDate
 
@@ -17,7 +19,7 @@ data class NewsEntity(
     @ColumnInfo(name = "img")
     val imageUrl : String,
     @ColumnInfo(name = "news_date")
-    val publicationDate : LocalDate,
+    val publicationDate : String,
     @ColumnInfo(name = "news_date_uts")
     val publicationDateUts : Long,
     @ColumnInfo(name = "annotation")

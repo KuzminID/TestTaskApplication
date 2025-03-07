@@ -1,10 +1,10 @@
 package com.example.testtaskapplication.data.local
 
-import android.app.Application
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import jakarta.inject.Inject
 
 @Database(
@@ -18,7 +18,7 @@ abstract class NewsDatabase : RoomDatabase() {
         const val DB_NAME = "news_database.db"
 
         private var INSTANCE : NewsDatabase? = null
-        @Inject
+
         fun getInstance(context: Context) : NewsDatabase {
             synchronized(this) {
                 var instance = INSTANCE
