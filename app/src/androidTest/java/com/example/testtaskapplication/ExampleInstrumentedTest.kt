@@ -1,26 +1,18 @@
 package com.example.testtaskapplication
 
-import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.room.Room
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.example.testtaskapplication.data.local.NewsDao
 import com.example.testtaskapplication.data.local.NewsDatabase
 import com.example.testtaskapplication.data.local.NewsEntity
-import jakarta.inject.Inject
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-
-import org.junit.Test
-import org.junit.runner.RunWith
-
 import org.junit.Assert.*
 import org.junit.Before
-import java.sql.Date
-import java.time.Instant.now
+import org.junit.Test
+import org.junit.runner.RunWith
 import java.time.LocalDate
 
 /**
@@ -31,10 +23,10 @@ import java.time.LocalDate
 @RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
 
-    private lateinit var db : NewsDatabase
-    private lateinit var newsDao : NewsDao
+    private lateinit var db: NewsDatabase
+    private lateinit var newsDao: NewsDao
 
-    val context : Context = InstrumentationRegistry.getInstrumentation().targetContext
+    val context: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
     @Before
     fun createDb() {
@@ -71,9 +63,9 @@ class ExampleInstrumentedTest {
             mobileUrl = "SecondNewMobileUrl",
             isIgnored = false
         )
-        val news = listOf<NewsEntity>(firstNews,secondNews)
+        val news = listOf<NewsEntity>(firstNews, secondNews)
         newsDao.insertNews(news)
         val dbNews = newsDao.getAllNews()
-        assertEquals(news,dbNews)
+        assertEquals(news, dbNews)
     }
 }

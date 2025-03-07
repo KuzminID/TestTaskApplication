@@ -11,7 +11,7 @@ class RoomModule {
 
     @Singleton
     @Provides
-    fun provideNewsDatabase(context : Context) = NewsDatabase.getInstance(context)
+    fun provideNewsDatabase(context: Context) = NewsDatabase.getInstance(context)
 
     @Singleton
     @Provides

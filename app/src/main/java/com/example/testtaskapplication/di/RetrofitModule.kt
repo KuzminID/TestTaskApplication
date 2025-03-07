@@ -17,19 +17,19 @@ class RetrofitModule {
     @Provides
     fun provideRequestApi(
         retrofit: Retrofit
-    ) : RequestApi {
+    ): RequestApi {
         return retrofit.create(RequestApi::class.java)
     }
 
     @Singleton
     @Provides
-    fun provideOkHttpClient() : OkHttpClient {
+    fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder().build()
     }
 
     @Singleton
     @Provides
-    fun provideMoshi() : Moshi {
+    fun provideMoshi(): Moshi {
         return Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
             .build()
@@ -38,10 +38,10 @@ class RetrofitModule {
     @Singleton
     @Provides
     fun provideRetrofit(
-        client : OkHttpClient,
+        client: OkHttpClient,
         moshi: Moshi
-    ) : Retrofit {
-        val baseUrl = "http://dev.docker.otr-soft.ru:947/api/mobile/news/list"
+    ): Retrofit {
+        val baseUrl = "http://dev.docker.otr-soft.ru:947"
         return Retrofit.Builder()
             .client(client)
             .baseUrl(baseUrl)
