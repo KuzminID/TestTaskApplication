@@ -4,6 +4,7 @@ import com.example.testtaskapplication.data.local.NewsDao
 import com.example.testtaskapplication.data.local.NewsEntity
 import com.example.testtaskapplication.data.remote.ApiService
 import jakarta.inject.Inject
+import java.util.regex.Pattern
 
 interface NewsRepository {
 
@@ -30,7 +31,9 @@ class NewsRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        val unIgnoredNews : List<NewsEntity> = newsDao.getAllNews().filter { !it.isIgnored }
+        val fixedMobileUrlNews = addLackPartOfUrl(newsDao.getAllNews())
+        newsDao.insertNews(fixedMobileUrlNews)
+        val unIgnoredNews : List<NewsEntity> = fixedMobileUrlNews.filter { !it.isIgnored }
         return sortByDescendingDate(unIgnoredNews)
     }
 
@@ -47,6 +50,21 @@ class NewsRepositoryImpl @Inject constructor(
             apiNews.find { it.id == item.id }?.isIgnored = true
         }
         return apiNews
+    }
+
+    //Fixing mobileUrl field which missing 'api' part after port and before path
+    private fun addLackPartOfUrl(news : List<NewsEntity>) : List<NewsEntity> {
+        val pattern = Pattern.compile("(http?://[^:/]+:\\d+)")
+        news.forEach { item ->
+            val url = item.mobileUrl
+            val matcher = pattern.matcher(url)
+
+            if (matcher.find()) {
+                val newUrl = url.replaceFirst(matcher.group(), "${matcher.group()}/api/")
+                item.mobileUrl = newUrl
+            }
+        }
+        return news
     }
 
     override suspend fun ignoreNews(newsItem: NewsEntity) {

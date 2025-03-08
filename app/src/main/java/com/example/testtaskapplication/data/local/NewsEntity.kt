@@ -22,7 +22,7 @@ data class NewsEntity(
     @Json(name = "annotation")
     val annotation: String,
     @Json(name = "mobile_url")
-    val mobileUrl: String,
+    var mobileUrl: String,
     @Json(name = "ignore_state")
     var isIgnored: Boolean = false
 )

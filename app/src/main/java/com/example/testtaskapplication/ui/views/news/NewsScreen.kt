@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -39,8 +40,8 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
             query = searchQuery,
             onQueryChange = { searchQuery = it },
             onSearch = { viewModel.searchNews(searchQuery) },
-            onClear = {
-                searchQuery = ""
+            onClear = { searchQuery = "" },
+            onRefresh = {
                 viewModel.loadFullNewsList()
             }
         )
@@ -58,30 +59,44 @@ fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
-    onClear: () -> Unit
+    onClear: () -> Unit,
+    onRefresh: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    TextField(
-        value = query,
-        onValueChange = onQueryChange,
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-        trailingIcon = {
-            if (query.isNotEmpty()) {
-                IconButton(onClick = onClear) {
-                    Icon(Icons.Default.Close, contentDescription = null)
-                }
+    Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+        Box(Modifier.weight(1f)) {
+            TextField(
+                value = query,
+                onValueChange = onQueryChange,
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(
+                            onClick = onClear,
+                            modifier = Modifier.padding(end = 25.dp)
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = null)
+                        }
+                    }
+                },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(
+                    onSearch = { onSearch() },
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            IconButton(
+                onClick = onRefresh,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
+                Icon(Icons.Filled.Refresh, contentDescription = "Refresh Button")
             }
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(
-            onSearch = { onSearch() },
-            onDone = {
-                focusManager.clearFocus()
-            }),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-    )
+        }
+    }
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
