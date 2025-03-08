@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 import com.squareup.moshi.Json
 
 @Entity(tableName = "news_table")
+@Json(name = "news")
 data class NewsEntity(
     @PrimaryKey
     val id: Long,

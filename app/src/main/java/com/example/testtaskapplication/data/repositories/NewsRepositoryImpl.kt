@@ -14,15 +14,24 @@ class NewsRepositoryImpl @Inject constructor(
     override suspend fun getAllNews(): List<NewsEntity> {
         var dbNews = newsDao.getAllNews()
 
-        val apiNews = apiService.getNewsFromApi().data.news
-
-        val ignoredNews = dbNews.filter { it.isIgnored == true }
-        ignoredNews.forEach { item ->
-            apiNews.find { item.id == it.id }?.isIgnored = true
-
+        try {
+            val apiNews = apiService.getNewsFromApi().data.news
+            val updatedNews = mergeAndUpdate(dbNews, apiNews)
+            newsDao.insertNews(updatedNews)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        newsDao.insertNews(apiNews)
+        return newsDao.getAllNews()
+    }
 
+    private fun mergeAndUpdate(
+        dbNews: List<NewsEntity>,
+        apiNews: List<NewsEntity>
+    ): List<NewsEntity> {
+        val ignoredNews = dbNews.filter { it.isIgnored }
+        ignoredNews.forEach { item ->
+            apiNews.find { it.id == item.id }?.isIgnored = true
+        }
         return apiNews
     }
 
