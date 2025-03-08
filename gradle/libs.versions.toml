@@ -12,8 +12,10 @@ retrofit2Version = "2.11.0"
 moshiVersion  = "1.15.2"
 roomVersion = "2.6.1"
 glideVersion = "4.16.0"
+glideComposeVersion = "1.0.0-alpha.1"
 kspVersion = "2.1.10-1.0.29"
 daggerVersion = "2.55"
+navigation = "2.8.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,9 +41,12 @@ moshi_kotlin = {group = "com.squareup.moshi",name = "moshi-kotlin",version.ref =
 room_compiler = {group = "androidx.room",name = "room-compiler",version.ref = "roomVersion"}
 room_ktx = {group = "androidx.room",name = "room-ktx",version.ref = "roomVersion"}
 glide = {group = "com.github.bumptech.glide",name = "glide",version.ref = "glideVersion"}
+glide-compose = {group = "com.github.bumptech.glide",name = "compose",version.ref = "glideComposeVersion"}
 dagger_compiler = {group = "com.google.dagger",name = "dagger-compiler",version.ref = "daggerVersion"}
 dagger = {group = "com.google.dagger",name = "dagger",version.ref = "daggerVersion"}
 
+androidx-navigation-compose = {group = "androidx.navigation",name = "navigation-compose",version.ref = "navigation"}
+androidx-navigation-runtime-ktx = {group = "androidx.navigation", name = "navigation-runtime-ktx",version.ref = "navigation"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

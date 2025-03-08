@@ -1,4 +1,4 @@
-package com.example.testtaskapplication.domain.repositories
+package com.example.testtaskapplication.domain
 
 import com.example.testtaskapplication.data.local.NewsEntity
 

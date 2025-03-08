@@ -1,6 +1,6 @@
 package com.example.testtaskapplication.data.remote
 
-import com.example.testtaskapplication.domain.repositories.ApiResponse
+import com.example.testtaskapplication.domain.ApiResponse
 import retrofit2.http.GET
 
 interface RequestApi {

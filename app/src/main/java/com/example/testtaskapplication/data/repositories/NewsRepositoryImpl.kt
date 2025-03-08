@@ -3,14 +3,23 @@ package com.example.testtaskapplication.data.repositories
 import com.example.testtaskapplication.data.local.NewsDao
 import com.example.testtaskapplication.data.local.NewsEntity
 import com.example.testtaskapplication.data.remote.ApiService
-import com.example.testtaskapplication.domain.repositories.NewsRepository
 import jakarta.inject.Inject
+
+interface NewsRepository {
+
+    suspend fun getAllNews(): List<NewsEntity>
+
+    suspend fun ignoreNews(newsItem: NewsEntity)
+
+}
 
 class NewsRepositoryImpl @Inject constructor(
     private val newsDao: NewsDao,
     private val apiService: ApiService
 ) : NewsRepository {
 
+    //Getting data from database and api and merging them by isIgnored fields
+    //Then filtering it and sorting by publication date
     override suspend fun getAllNews(): List<NewsEntity> {
         var dbNews = newsDao.getAllNews()
 
@@ -21,7 +30,12 @@ class NewsRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return newsDao.getAllNews()
+        val unIgnoredNews : List<NewsEntity> = newsDao.getAllNews().filter { !it.isIgnored }
+        return sortByDescendingDate(unIgnoredNews)
+    }
+
+    private fun sortByDescendingDate(newsList : List<NewsEntity>) : List<NewsEntity> {
+        return newsList.sortedByDescending { it.publicationDateUts }
     }
 
     private fun mergeAndUpdate(

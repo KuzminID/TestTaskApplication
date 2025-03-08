@@ -34,5 +34,4 @@ class AppModule(private val application: Application) {
     fun provideAPiService(requestApi: RequestApi): ApiService {
         return ApiService(requestApi)
     }
-
 }
