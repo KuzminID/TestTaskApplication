@@ -9,13 +9,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.testtaskapplication.domain.Screen
-import com.example.testtaskapplication.domain.Screen.WebViewScreen
 import com.example.testtaskapplication.ui.views.news.NewsScreen
-import com.example.testtaskapplication.ui.views.news.NewsViewModel
 import com.example.testtaskapplication.ui.views.web_view.WebViewScreen
 
+//Navigation graph for navigation between screens and providing url to webViewScreen
 @Composable
-fun NavigationGraph(navController : NavHostController) {
+fun NavigationGraph(navController: NavHostController) {
     NavHost(
         navController,
         startDestination = Screen.NewsScreen.route

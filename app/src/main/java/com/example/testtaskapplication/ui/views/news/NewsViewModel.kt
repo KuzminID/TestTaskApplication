@@ -1,9 +1,7 @@
 package com.example.testtaskapplication.ui.views.news
 
-import androidx.compose.ui.platform.DisableContentCapture
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.testtaskapplication.TestTaskApplication.Companion.appComponent
 import com.example.testtaskapplication.data.local.NewsEntity
 import com.example.testtaskapplication.data.repositories.NewsRepositoryImpl
@@ -12,9 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newCoroutineContext
 
-class NewsViewModel () : ViewModel() {
+class NewsViewModel() : ViewModel() {
     @Inject
     lateinit var repositoryImpl: NewsRepositoryImpl
 
@@ -33,7 +30,7 @@ class NewsViewModel () : ViewModel() {
             val filteredNews =
                 _newsList.value.filter {
                     it.title.contains(query, ignoreCase = true) ||
-                    it.annotation.contains(query, ignoreCase = true)
+                            it.annotation.contains(query, ignoreCase = true)
                 }
             _newsList.value = filteredNews
         }

@@ -1,7 +1,6 @@
 package com.example.testtaskapplication.ui.views.news
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,7 +27,6 @@ import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.testtaskapplication.data.local.NewsEntity
-import com.example.testtaskapplication.domain.Screen
 
 @Composable
 fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
@@ -63,7 +61,9 @@ fun SearchBar(
     onRefresh: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(8.dp)) {
         Box(Modifier.weight(1f)) {
             TextField(
                 value = query,
@@ -83,6 +83,7 @@ fun SearchBar(
                 keyboardActions = KeyboardActions(
                     onSearch = { onSearch() },
                     onDone = {
+                        //Using focus manager for keyboard hiding
                         focusManager.clearFocus()
                     }
                 ),
@@ -108,9 +109,7 @@ fun NewsList(
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(newsList) { news ->
-            if (!news.isIgnored) {
-                NewsItem(news = news, onIgnoreClick = onIgnoreClick, onItemClick = onItemClick)
-            }
+            NewsItem(news = news, onIgnoreClick = onIgnoreClick, onItemClick = onItemClick)
         }
     }
 }
@@ -142,7 +141,7 @@ fun NewsItem(
                     onClick = { onIgnoreClick(news) },
                     modifier = Modifier
                         .size(48.dp)
-                        .align(Alignment.TopEnd), // Кнопка "Скрыть" в правом верхнем углу
+                        .align(Alignment.TopEnd),
                 ) {
                     Icon(
                         Icons.Default.Close,
@@ -153,7 +152,7 @@ fun NewsItem(
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = news.title, style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = news.annotation, style = MaterialTheme.typography.bodySmall)
+            Text(text = news.annotation, style = MaterialTheme.typography.bodyMedium)
             Button(onClick = { onItemClick(news) }) {
                 Text(text = "Читать далее")
             }

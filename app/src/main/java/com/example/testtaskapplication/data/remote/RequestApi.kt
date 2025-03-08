@@ -4,6 +4,6 @@ import com.example.testtaskapplication.domain.ApiResponse
 import retrofit2.http.GET
 
 interface RequestApi {
-    @GET("/api/mobile/news/list?fields=data(news)")
+    @GET("/api/mobile/news/list")
     suspend fun getNewsList(): ApiResponse
 }

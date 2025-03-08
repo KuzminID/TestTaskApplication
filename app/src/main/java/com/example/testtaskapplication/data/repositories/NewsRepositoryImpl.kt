@@ -26,22 +26,23 @@ class NewsRepositoryImpl @Inject constructor(
 
         try {
             val apiNews = apiService.getNewsFromApi().data.news
-            val updatedNews = mergeAndUpdate(dbNews, apiNews)
+            val updatedNews = mergeNews(dbNews, apiNews)
             newsDao.insertNews(updatedNews)
         } catch (e: Exception) {
             e.printStackTrace()
         }
         val fixedMobileUrlNews = addLackPartOfUrl(newsDao.getAllNews())
         newsDao.insertNews(fixedMobileUrlNews)
-        val unIgnoredNews : List<NewsEntity> = fixedMobileUrlNews.filter { !it.isIgnored }
+        val unIgnoredNews: List<NewsEntity> = fixedMobileUrlNews.filter { !it.isIgnored }
         return sortByDescendingDate(unIgnoredNews)
     }
 
-    private fun sortByDescendingDate(newsList : List<NewsEntity>) : List<NewsEntity> {
+    private fun sortByDescendingDate(newsList: List<NewsEntity>): List<NewsEntity> {
         return newsList.sortedByDescending { it.publicationDateUts }
     }
 
-    private fun mergeAndUpdate(
+    //Merging api news with database news using database isIgnored field
+    private fun mergeNews(
         dbNews: List<NewsEntity>,
         apiNews: List<NewsEntity>
     ): List<NewsEntity> {
@@ -53,7 +54,7 @@ class NewsRepositoryImpl @Inject constructor(
     }
 
     //Fixing mobileUrl field which missing 'api' part after port and before path
-    private fun addLackPartOfUrl(news : List<NewsEntity>) : List<NewsEntity> {
+    private fun addLackPartOfUrl(news: List<NewsEntity>): List<NewsEntity> {
         val pattern = Pattern.compile("(http?://[^:/]+:\\d+)")
         news.forEach { item ->
             val url = item.mobileUrl
@@ -67,6 +68,7 @@ class NewsRepositoryImpl @Inject constructor(
         return news
     }
 
+    //Updating news isIgnored field for hiding news from showing in view
     override suspend fun ignoreNews(newsItem: NewsEntity) {
         newsItem.isIgnored = true
         newsDao.updateNewsItem(newsItem)
