@@ -11,6 +11,7 @@
 В приложении реализована инъекция зависимостей, что позволяет уменьшить зависимости между различными частями приложения. Для инъекции зависимостей используется библиотека Dagger2.
 
 Экран приложения со списком новостей
-![image](https://github.com/user-attachments/assets/c59ca1ae-6cfc-4427-8fe1-f6d48d43e3e8)
+![image](https://github.com/user-attachments/assets/e56e848e-c7bc-4d06-abbd-0a70efb14cea)
+
 База данных
 ![image](https://github.com/user-attachments/assets/6ddb1783-ae44-437d-8731-034fdade6300)
