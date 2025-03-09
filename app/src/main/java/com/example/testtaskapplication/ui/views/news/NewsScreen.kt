@@ -7,16 +7,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,28 +33,44 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.testtaskapplication.data.local.NewsEntity
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
     val newsList by viewModel.newsList.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        SearchBar(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it },
-            onSearch = { viewModel.searchNews(searchQuery) },
-            onClear = { searchQuery = "" },
-            onRefresh = {
-                viewModel.loadFullNewsList()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Новости") },
+                actions = {
+                    IconButton(onClick = { viewModel.loadFullNewsList() }) {
+                        Icon(Icons.Filled.Refresh, contentDescription = null)
+                    }
+                }
+            )
+        },
+        content = { innerPadding ->
+            Column(Modifier.padding(innerPadding)) {
+                SearchBar(
+                    query = searchQuery,
+                    onQueryChange = { searchQuery = it },
+                    onSearch = { viewModel.searchNews(searchQuery) },
+                    onClear = { searchQuery = "" }
+                )
+                NewsList(
+                    newsList = newsList,
+                    onIgnoreClick = { news ->
+                        viewModel.toggleIgnoreNews(news)
+                    },
+                    onItemClick = { news ->
+                        val url = Uri.encode(news.mobileUrl)
+                        navController.navigate("web_view/$url")
+                    }
+                )
             }
-        )
-        NewsList(newsList = newsList, onIgnoreClick = { news ->
-            viewModel.toggleIgnoreNews(news)
-        }, onItemClick = { news ->
-            val url = Uri.encode(news.mobileUrl)
-            navController.navigate("web_view/$url")
-        })
-    }
+        }
+    )
 }
 
 @Composable
@@ -57,8 +78,7 @@ fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
-    onClear: () -> Unit,
-    onRefresh: () -> Unit
+    onClear: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     Row(modifier = Modifier
@@ -72,8 +92,7 @@ fun SearchBar(
                 trailingIcon = {
                     if (query.isNotEmpty()) {
                         IconButton(
-                            onClick = onClear,
-                            modifier = Modifier.padding(end = 25.dp)
+                            onClick = onClear
                         ) {
                             Icon(Icons.Default.Close, contentDescription = null)
                         }
@@ -89,13 +108,6 @@ fun SearchBar(
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-                onClick = onRefresh,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            ) {
-                Icon(Icons.Filled.Refresh, contentDescription = "Refresh Button")
-            }
         }
     }
 }
