@@ -31,9 +31,9 @@ class NewsRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        val fixedMobileUrlNews = addLackPartOfUrl(newsDao.getAllNews())
-        newsDao.insertNews(fixedMobileUrlNews)
-        val unIgnoredNews: List<NewsEntity> = fixedMobileUrlNews.filter { !it.isIgnored }
+        val finalNews = newsDao.getAllNews()
+
+        val unIgnoredNews: List<NewsEntity> = finalNews.filter { !it.isIgnored }
         return sortByDescendingDate(unIgnoredNews)
     }
 
@@ -51,21 +51,6 @@ class NewsRepositoryImpl @Inject constructor(
             apiNews.find { it.id == item.id }?.isIgnored = true
         }
         return apiNews
-    }
-
-    //Fixing mobileUrl field which missing 'api' part after port and before path
-    private fun addLackPartOfUrl(news: List<NewsEntity>): List<NewsEntity> {
-        val pattern = Pattern.compile("(http?://[^:/]+:\\d+)")
-        news.forEach { item ->
-            val url = item.mobileUrl
-            val matcher = pattern.matcher(url)
-
-            if (matcher.find()) {
-                val newUrl = url.replaceFirst(matcher.group(), "${matcher.group()}/api/")
-                item.mobileUrl = newUrl
-            }
-        }
-        return news
     }
 
     //Updating news isIgnored field for hiding news from showing in view
