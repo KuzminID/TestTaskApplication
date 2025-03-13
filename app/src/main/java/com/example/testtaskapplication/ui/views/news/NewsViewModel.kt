@@ -26,7 +26,7 @@ class NewsViewModel() : ViewModel() {
     }
 
     fun searchNews(query: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Default) {
             val filteredNews =
                 _newsList.value.filter {
                     it.title.contains(query, ignoreCase = true) ||
