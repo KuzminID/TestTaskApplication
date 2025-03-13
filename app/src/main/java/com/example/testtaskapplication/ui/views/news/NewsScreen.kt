@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -36,6 +38,7 @@ import com.example.testtaskapplication.data.local.NewsEntity
 fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
     val newsList by viewModel.newsList.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    val status by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -49,26 +52,53 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
             )
         },
         content = { innerPadding ->
-            Column(Modifier.padding(innerPadding)) {
-                SearchBar(
-                    query = searchQuery,
-                    onQueryChange = { searchQuery = it },
-                    onSearch = { viewModel.searchNews(searchQuery) },
-                    onClear = { searchQuery = ""
-                        /*Implementation of the functionality to return
-                         the news list to its original value without loading from api*/
-                                viewModel.loadFullNewsList(false)}
-                )
-                NewsList(
-                    newsList = newsList,
-                    onIgnoreClick = { news ->
-                        viewModel.toggleIgnoreNews(news)
-                    },
-                    onItemClick = { news ->
-                        val url = Uri.encode(news.mobileUrl)
-                        navController.navigate("web_view/$url")
+            when (status) {
+                NewsViewModel.LoadingState.Loading ->  {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        CircularProgressIndicator()
+                        Text("Загрузка списка новостей", modifier = Modifier.padding(top = 75.dp))
                     }
-                )
+                }
+                NewsViewModel.LoadingState.Success -> {
+                    Column(Modifier.padding(innerPadding)) {
+                        SearchBar(
+                            query = searchQuery,
+                            onQueryChange = { searchQuery = it },
+                            onSearch = { viewModel.searchNews(searchQuery) },
+                            onClear = { searchQuery = ""
+                                /*Implementation of the functionality to return
+                                 the news list to its original value without loading from api*/
+                                        viewModel.loadFullNewsList(false)}
+                        )
+                        NewsList(
+                            newsList = newsList,
+                            onIgnoreClick = { news ->
+                                viewModel.toggleIgnoreNews(news)
+                            },
+                            onItemClick = { news ->
+                                val url = Uri.encode(news.mobileUrl)
+                                navController.navigate("web_view/$url")
+                            }
+                        )
+                    }
+                }
+                NewsViewModel.LoadingState.Error -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(text = "Ошибка при загрузке данных. Проверьте соединение с интернетом",
+                            modifier = Modifier
+                                .padding(bottom = 100.dp),
+                            textAlign = TextAlign.Center)
+                        Button(onClick = { viewModel.loadFullNewsList(true) }) {
+                            Text("Повторить попытку", Modifier)
+                        }
+                    }
+                }
             }
         }
     )
