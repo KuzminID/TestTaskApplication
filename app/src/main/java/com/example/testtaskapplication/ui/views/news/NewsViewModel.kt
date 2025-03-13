@@ -33,7 +33,6 @@ class NewsViewModel() : ViewModel() {
     //Extracted to separate fun because of multiple using cases
     private suspend fun loadNewsFromApi() {
         try {
-            _uiState.value = LoadingState.Loading
             _newsList.value = repositoryImpl.getAllNews()
 
             /*Added delay for showing user that loading is still processing in case
@@ -71,10 +70,19 @@ class NewsViewModel() : ViewModel() {
     fun loadFullNewsList(loadFromApi : Boolean) {
         if (loadFromApi) {
             viewModelScope.launch(Dispatchers.IO) {
+                _uiState.value = LoadingState.Loading
                 loadNewsFromApi()
             }
         } else {
             _newsList.value = newsListBackup
+        }
+    }
+
+    /*Using separate function for not changing uiState (This
+    is needed for not hiding newsList from view*/
+    fun refreshNews() {
+        viewModelScope.launch(Dispatchers.IO) {
+            loadNewsFromApi()
         }
     }
 

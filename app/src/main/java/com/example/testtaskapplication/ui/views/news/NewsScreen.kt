@@ -1,6 +1,8 @@
 package com.example.testtaskapplication.ui.views.news
 
 import android.net.Uri
+import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,6 +34,9 @@ import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.testtaskapplication.data.local.NewsEntity
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +44,7 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
     val newsList by viewModel.newsList.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     val status by viewModel.uiState.collectAsState()
+    val swipeRefreshState by remember {mutableStateOf(false)}
 
     Scaffold(
         topBar = {
@@ -52,6 +58,7 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
             )
         },
         content = { innerPadding ->
+
             when (status) {
                 NewsViewModel.LoadingState.Loading ->  {
                     Box(
@@ -63,6 +70,7 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
                     }
                 }
                 NewsViewModel.LoadingState.Success -> {
+
                     Column(Modifier.padding(innerPadding)) {
                         SearchBar(
                             query = searchQuery,
@@ -81,6 +89,10 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
                             onItemClick = { news ->
                                 val url = Uri.encode(news.mobileUrl)
                                 navController.navigate("web_view/$url")
+                            },
+                            isRefreshing = swipeRefreshState,
+                            onRefresh = {
+                                viewModel.refreshNews()
                             }
                         )
                     }
@@ -148,11 +160,30 @@ fun SearchBar(
 fun NewsList(
     newsList: List<NewsEntity>,
     onIgnoreClick: (NewsEntity) -> Unit,
-    onItemClick: (NewsEntity) -> Unit
-) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(newsList) { news ->
-            NewsItem(news = news, onIgnoreClick = onIgnoreClick, onItemClick = onItemClick)
+    onItemClick: (NewsEntity) -> Unit,
+    isRefreshing : Boolean,
+    onRefresh : () -> Unit
+)
+{
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
+
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = onRefresh,
+        indicator = { state, refreshTrigger ->
+            SwipeRefreshIndicator(
+                state = state,
+                refreshTriggerDistance = refreshTrigger,
+                scale = true,
+                backgroundColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.primary
+            )
+        }
+    ) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(newsList) { news ->
+                NewsItem(news = news, onIgnoreClick = onIgnoreClick, onItemClick = onItemClick)
+            }
         }
     }
 }

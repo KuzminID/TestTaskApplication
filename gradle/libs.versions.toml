@@ -16,6 +16,7 @@ glideComposeVersion = "1.0.0-alpha.1"
 kspVersion = "2.1.10-1.0.29"
 daggerVersion = "2.55"
 navigation = "2.8.8"
+swipeRefreshVersion = "0.25.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +48,8 @@ dagger = {group = "com.google.dagger",name = "dagger",version.ref = "daggerVersi
 
 androidx-navigation-compose = {group = "androidx.navigation",name = "navigation-compose",version.ref = "navigation"}
 androidx-navigation-runtime-ktx = {group = "androidx.navigation", name = "navigation-runtime-ktx",version.ref = "navigation"}
+
+swipe-refresh = {group = "com.google.accompanist",name = "accompanist-swiperefresh", version.ref = "swipeRefreshVersion"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
