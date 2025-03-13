@@ -17,6 +17,7 @@ class NewsViewModel() : ViewModel() {
 
     private val _newsList = MutableStateFlow(emptyList<NewsEntity>())
     val newsList: StateFlow<List<NewsEntity>> = _newsList
+    private lateinit var newsListBackup : List<NewsEntity>
 
     init {
         appComponent.inject(this)
@@ -26,6 +27,9 @@ class NewsViewModel() : ViewModel() {
     }
 
     fun searchNews(query: String) {
+        newsListBackup = _newsList.value /*Not using if..else because
+                                           current news is constantly changing
+                                           and verification using if..else would be an unoptimized.*/
         viewModelScope.launch(Dispatchers.Default) {
             val filteredNews =
                 _newsList.value.filter {
@@ -36,9 +40,16 @@ class NewsViewModel() : ViewModel() {
         }
     }
 
-    fun loadFullNewsList() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _newsList.value = repositoryImpl.getAllNews()
+    /**
+    loadState = false for using newsList from backup; loadState = true for loading newsList from api
+    */
+    fun loadFullNewsList(loadState : Boolean) {
+        if (loadState) {
+            viewModelScope.launch(Dispatchers.IO) {
+                _newsList.value = repositoryImpl.getAllNews()
+            }
+        } else {
+            _newsList.value = newsListBackup
         }
     }
 

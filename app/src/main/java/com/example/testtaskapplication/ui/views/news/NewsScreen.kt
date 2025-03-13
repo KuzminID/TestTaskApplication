@@ -42,7 +42,7 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
             TopAppBar(
                 title = { Text("Новости") },
                 actions = {
-                    IconButton(onClick = { viewModel.loadFullNewsList() }) {
+                    IconButton(onClick = { viewModel.loadFullNewsList(true) }) {
                         Icon(Icons.Filled.Refresh, contentDescription = null)
                     }
                 }
@@ -54,7 +54,10 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
                     onSearch = { viewModel.searchNews(searchQuery) },
-                    onClear = { searchQuery = "" }
+                    onClear = { searchQuery = ""
+                        /*Implementation of the functionality to return
+                         the news list to its original value without loading from api*/
+                                viewModel.loadFullNewsList(false)}
                 )
                 NewsList(
                     newsList = newsList,
