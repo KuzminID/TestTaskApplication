@@ -18,35 +18,59 @@ class NewsViewModel() : ViewModel() {
 
     private val _newsList = MutableStateFlow(emptyList<NewsEntity>())
     val newsList: StateFlow<List<NewsEntity>> = _newsList
-    private lateinit var newsListBackup : List<NewsEntity>
+    private var newsListBackup : List<NewsEntity> = emptyList()
 
     private val _uiState = MutableStateFlow(LoadingState.Loading)
     val uiState : StateFlow<LoadingState> = _uiState
 
+    private val _newsListState = MutableStateFlow(NewsListState.UnignoredNews)
+    val newsListState : StateFlow<NewsListState> = _newsListState
+
     init {
         appComponent.inject(this)
         viewModelScope.launch(Dispatchers.IO) {
-            loadNewsFromApi()
+            //Always loading news from api on init
+            loadNewsFromApi(true)
         }
     }
 
     //Extracted to separate fun because of multiple using cases
-    private suspend fun loadNewsFromApi() {
+    private suspend fun loadNewsFromApi(loadFromApiState : Boolean) {
         try {
-            _newsList.value = repositoryImpl.getAllNews()
-
-            /*Added delay for showing user that loading is still processing in case
-            of getting error occurs too fast and user only sees LoadingState.Error view state*/
-            delay(1000)
-
-            if (_newsList.value != emptyList<NewsEntity>()) {
-                _uiState.value = LoadingState.Success
+            val newsList = if (loadFromApiState) {
+                repositoryImpl.getAllNews()
             } else {
+                repositoryImpl.getAllNewsFromDb()
+            }
+
+            if (newsList != emptyList<NewsEntity>()) {
+                filterNewsByIgnoredState(newsList)
+                //Delay for finishing filter operation
+                delay(500)
+                if (_newsList.value.isNotEmpty()) {
+                    _uiState.value = LoadingState.Success
+                } else if (_newsListState.value == NewsListState.IgnoredNews) {
+                    _uiState.value = LoadingState.EmptyIgnored
+                } else {
+                    _uiState.value = LoadingState.EmptyUnignored
+                }
+            } else{
                 _uiState.value = LoadingState.Error
             }
         } catch (e : Exception) {
             _uiState.value = LoadingState.Error
             e.printStackTrace()
+        }
+    }
+
+    fun filterNewsByIgnoredState(newsList : List<NewsEntity>) {
+        var filteredList = emptyList<NewsEntity>()
+        viewModelScope.launch(Dispatchers.Default) {
+            filteredList = when (_newsListState.value) {
+                NewsListState.IgnoredNews -> newsList.filter { it.isIgnored }
+                NewsListState.UnignoredNews -> newsList.filter { !it.isIgnored }
+            }
+            _newsList.value = sortNewsByDescendingDate(filteredList)
         }
     }
 
@@ -67,35 +91,67 @@ class NewsViewModel() : ViewModel() {
     /**
     loadFromApi = false for using newsList from backup; loadFromApi = true for loading newsList from api
     */
-    fun loadFullNewsList(loadFromApi : Boolean) {
-        if (loadFromApi) {
+    fun loadFullNewsList(loadFromApiState : Boolean) {
+        if (loadFromApiState) {
             viewModelScope.launch(Dispatchers.IO) {
                 _uiState.value = LoadingState.Loading
-                loadNewsFromApi()
+                loadNewsFromApi(loadFromApiState)
             }
         } else {
-            _newsList.value = newsListBackup
+            if (newsListBackup.isNotEmpty()) {
+                _newsList.value = newsListBackup
+            } else {
+                viewModelScope.launch(Dispatchers.IO) {
+                    _uiState.value = LoadingState.Loading
+                    loadNewsFromApi(loadFromApiState)
+                }
+            }
         }
+    }
+
+    fun loadUnignoredNews(loadFromApiState : Boolean) {
+        _newsListState.value = NewsListState.UnignoredNews
+        viewModelScope.launch(Dispatchers.IO) {
+            loadNewsFromApi(loadFromApiState)
+        }
+    }
+
+    fun loadIgnoredNews(loadFromApiState : Boolean) {
+        _newsListState.value = NewsListState.IgnoredNews
+        viewModelScope.launch(Dispatchers.IO) {
+            loadNewsFromApi(loadFromApiState)
+        }
+    }
+
+    private fun sortNewsByDescendingDate(newsList : List<NewsEntity>) : List<NewsEntity> {
+        return newsList.sortedByDescending { it.publicationDateUts }
     }
 
     /*Using separate function for not changing uiState (This
     is needed for not hiding newsList from view*/
     fun refreshNews() {
         viewModelScope.launch(Dispatchers.IO) {
-            loadNewsFromApi()
+            //On refresh always trying to get news from api
+            loadNewsFromApi(true)
         }
     }
 
     fun toggleIgnoreNews(news: NewsEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            repositoryImpl.ignoreNews(news)
-            _newsList.value = repositoryImpl.getAllNews()
+            repositoryImpl.changeIgnoredState(news)
         }
     }
 
     enum class LoadingState{
         Loading,
         Success,
-        Error
+        Error,
+        EmptyIgnored,
+        EmptyUnignored
+    }
+
+    enum class NewsListState {
+        IgnoredNews,
+        UnignoredNews
     }
 }

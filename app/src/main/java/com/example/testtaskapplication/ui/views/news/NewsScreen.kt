@@ -9,7 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -26,6 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -45,12 +48,25 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     val status by viewModel.uiState.collectAsState()
     val swipeRefreshState by remember {mutableStateOf(false)}
+    val newsListState by viewModel.newsListState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Новости") },
                 actions = {
+                    when (newsListState) {
+                        NewsViewModel.NewsListState.IgnoredNews -> {
+                            IconButton(onClick = { viewModel.loadUnignoredNews(true) }) {
+                                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
+                            }
+                        }
+                        NewsViewModel.NewsListState.UnignoredNews -> {
+                            IconButton(onClick = { viewModel.loadIgnoredNews(true) }) {
+                                Icon(Icons.Filled.Delete, contentDescription = null)
+                            }
+                        }
+                    }
                     IconButton(onClick = { viewModel.loadFullNewsList(true) }) {
                         Icon(Icons.Filled.Refresh, contentDescription = null)
                     }
@@ -93,23 +109,36 @@ fun NewsScreen(navController: NavController, viewModel: NewsViewModel) {
                             isRefreshing = swipeRefreshState,
                             onRefresh = {
                                 viewModel.refreshNews()
+                            },
+                            when (newsListState) {
+                                NewsViewModel.NewsListState.IgnoredNews -> Icons.AutoMirrored.Default.ArrowBack
+                                NewsViewModel.NewsListState.UnignoredNews -> Icons.Default.Close
                             }
                         )
                     }
                 }
                 NewsViewModel.LoadingState.Error -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Text(text = "Ошибка при загрузке данных. Проверьте соединение с интернетом",
-                            modifier = Modifier
-                                .padding(bottom = 100.dp),
-                            textAlign = TextAlign.Center)
-                        Button(onClick = { viewModel.loadFullNewsList(true) }) {
-                            Text("Повторить попытку", Modifier)
-                        }
-                    }
+                    OnErrorView(
+                        "Ошибка при загрузке данных. Проверьте соединение с интернетом",
+                        "Повторить попытку",
+                        action = { viewModel.loadFullNewsList(true) }
+                    )
+                }
+
+                NewsViewModel.LoadingState.EmptyIgnored -> {
+                    OnErrorView(
+                        "Список скрытых новостей пуст",
+                        "Вернуться ко всем новостям",
+                        action = { viewModel.loadUnignoredNews(false) }
+                    )
+                }
+
+                NewsViewModel.LoadingState.EmptyUnignored -> {
+                    OnErrorView(
+                        "Список новостей пуст",
+                        "Посмотреть скрытые",
+                        action = { viewModel.loadIgnoredNews(false) }
+                    )
                 }
             }
         }
@@ -155,6 +184,22 @@ fun SearchBar(
     }
 }
 
+@Composable
+fun OnErrorView(errorText : String, buttonText : String, action : () -> Unit) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(text = errorText,
+            modifier = Modifier
+                .padding(bottom = 100.dp),
+            textAlign = TextAlign.Center)
+        Button(onClick = action) {
+            Text(buttonText, Modifier)
+        }
+    }
+}
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun NewsList(
@@ -162,7 +207,8 @@ fun NewsList(
     onIgnoreClick: (NewsEntity) -> Unit,
     onItemClick: (NewsEntity) -> Unit,
     isRefreshing : Boolean,
-    onRefresh : () -> Unit
+    onRefresh : () -> Unit,
+    ignoredStateIcon : ImageVector
 )
 {
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
@@ -182,7 +228,7 @@ fun NewsList(
     ) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(newsList) { news ->
-                NewsItem(news = news, onIgnoreClick = onIgnoreClick, onItemClick = onItemClick)
+                NewsItem(news = news, onIgnoreClick = onIgnoreClick, onItemClick = onItemClick,ignoredStateIcon)
             }
         }
     }
@@ -193,7 +239,8 @@ fun NewsList(
 fun NewsItem(
     news: NewsEntity,
     onIgnoreClick: (NewsEntity) -> Unit,
-    onItemClick: (NewsEntity) -> Unit
+    onItemClick: (NewsEntity) -> Unit,
+    ignoredStateIcon : ImageVector
 ) {
     Card(
         modifier = Modifier
@@ -218,7 +265,7 @@ fun NewsItem(
                         .align(Alignment.TopEnd),
                 ) {
                     Icon(
-                        Icons.Default.Close,
+                        ignoredStateIcon,
                         contentDescription = if (!news.isIgnored) "Скрыть" else "Показать",
                     )
                 }

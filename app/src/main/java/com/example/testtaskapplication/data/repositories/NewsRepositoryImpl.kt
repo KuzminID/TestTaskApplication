@@ -4,14 +4,14 @@ import com.example.testtaskapplication.data.local.NewsDao
 import com.example.testtaskapplication.data.local.NewsEntity
 import com.example.testtaskapplication.data.remote.ApiService
 import jakarta.inject.Inject
-import java.util.regex.Pattern
 
 interface NewsRepository {
 
     suspend fun getAllNews(): List<NewsEntity>
 
-    suspend fun ignoreNews(newsItem: NewsEntity)
+    suspend fun changeIgnoredState(newsItem: NewsEntity)
 
+    suspend fun getAllNewsFromDb() : List<NewsEntity>
 }
 
 class NewsRepositoryImpl @Inject constructor(
@@ -33,12 +33,7 @@ class NewsRepositoryImpl @Inject constructor(
         }
         val finalNews = newsDao.getAllNews()
 
-        val unIgnoredNews: List<NewsEntity> = finalNews.filter { !it.isIgnored }
-        return sortByDescendingDate(unIgnoredNews)
-    }
-
-    private fun sortByDescendingDate(newsList: List<NewsEntity>): List<NewsEntity> {
-        return newsList.sortedByDescending { it.publicationDateUts }
+        return finalNews
     }
 
     //Merging api news with database news using database isIgnored field
@@ -54,8 +49,18 @@ class NewsRepositoryImpl @Inject constructor(
     }
 
     //Updating news isIgnored field for hiding news from showing in view
-    override suspend fun ignoreNews(newsItem: NewsEntity) {
-        newsItem.isIgnored = true
+    override suspend fun changeIgnoredState(newsItem: NewsEntity) {
+        newsItem.isIgnored = !newsItem.isIgnored
         newsDao.updateNewsItem(newsItem)
+    }
+
+    override suspend fun getAllNewsFromDb(): List<NewsEntity> {
+        try {
+          val news = newsDao.getAllNews()
+          return news
+        } catch (e : Exception) {
+            e.printStackTrace()
+            return emptyList()
+        }
     }
 }
