@@ -139,6 +139,10 @@ class NewsViewModel() : ViewModel() {
     fun toggleIgnoreNews(news: NewsEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             repositoryImpl.changeIgnoredState(news)
+            //Removing element with changed ignoredState
+            val newsList : MutableList<NewsEntity> = _newsList.value.toMutableList()
+            newsList.remove(news)
+            _newsList.value = newsList
         }
     }
 
